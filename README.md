@@ -26,55 +26,91 @@ This project implements a face recognition system using Eigenfaces (PCA) and a S
 └── README.md                   # Project description and usage
 ```
 
-## Installation
-
-1. Clone this repository:
-   ```bash
-   git clone <repository_url>
-   cd <repository_name>
-   ```
-2. Install dependencies (preferably in a virtual environment):
-   ```bash
-   pip install opencv-python numpy matplotlib scikit-learn
-   ```
-
 ## Usage
 
-1. **Prepare dataset**: Place your face images under `images/<label>/` directories.
-2. **Run the notebook**: Open `face_detection_recognition_tutorial.ipynb` and execute cells to:
-   - Load and preprocess images
-   - Train the PCA+SVM pipeline
-   - Evaluate on a test split (classification report)
-   - Save the trained model to `eigenface_pipeline.pkl`
-   - Visualize top Eigenfaces
-3. **Real-time Recognition**:
-   In a new cell (or separate script), use the following snippet to perform webcam-based recognition:
-   ```python
-   import cv2, numpy as np, pickle
-   from your_module import detect_faces, crop_faces, resize_and_flatten, eigenface_prediction
+### 1. Clone the repository
 
-   # Load trained pipeline
-   with open('eigenface_pipeline.pkl', 'rb') as f:
-       pipe = pickle.load(f)
+```bash
+git clone https://github.com/raviearjun/face-recognition-eigenfaces.git
+cd face-recognition-eigenfaces
+```
 
-   cap = cv2.VideoCapture(0)
-   while True:
-       ret, frame = cap.read()
-       gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-       try:
-           scores, labels, faces = eigenface_prediction(gray)
-           for (x, y, w, h), label, score in zip(faces, labels, scores):
-               cv2.rectangle(frame, (x, y), (x+w, y+h), (0,255,0), 2)
-               cv2.putText(frame, f"{label} ({score:.2f})", (x, y-10),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
-       except:
-           cv2.putText(frame, "No face detected", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2)
-       cv2.imshow('Eigenface Recognition', frame)
-       if cv2.waitKey(1) & 0xFF == ord('q'):
-           break
-   cap.release()
-   cv2.destroyAllWindows()
-   ```
+### 2. Install dependencies
+
+It is recommended to use a virtual environment:
+
+```bash
+pip install -r requirements.txt
+```
+
+If `requirements.txt` is not available, install manually:
+
+```bash
+pip install opencv-python numpy matplotlib scikit-learn
+```
+
+### 3. Prepare dataset
+
+Organize your face images into subdirectories under `images/`, one subdirectory per person:
+
+```
+images/
+├── person1/
+│   ├── img1.jpg
+│   └── img2.jpg
+├── person2/
+│   ├── img1.jpg
+│   └── img2.jpg
+└── ...
+```
+
+### 4. Run the notebook
+
+Launch Jupyter and open the notebook:
+
+```bash
+jupyter notebook face_detection_recognition_tutorial.ipynb
+```
+
+Execute all cells to:
+- Preprocess and load images
+- Detect and crop faces
+- Extract features using PCA (Eigenfaces)
+- Train and evaluate the SVM classifier
+- Save the model to `eigenface_pipeline.pkl`
+- Visualize the top Eigenfaces
+
+### 5. Run real-time recognition
+
+You can test your model with a webcam using a script like this:
+
+```python
+import cv2, numpy as np, pickle
+from your_module import detect_faces, crop_faces, resize_and_flatten, eigenface_prediction
+
+with open('eigenface_pipeline.pkl', 'rb') as f:
+    pipe = pickle.load(f)
+
+cap = cv2.VideoCapture(0)
+while True:
+    ret, frame = cap.read()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    try:
+        scores, labels, faces = eigenface_prediction(gray)
+        for (x, y, w, h), label, score in zip(faces, labels, scores):
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0,255,0), 2)
+            cv2.putText(frame, f"{label} ({score:.2f})", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
+    except:
+        cv2.putText(frame, "No face detected", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2)
+    cv2.imshow('Eigenface Recognition', frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
+```
+
+Press `q` to exit the webcam window.
+
 
 ## Key Components
 
